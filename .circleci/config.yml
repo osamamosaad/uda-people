@@ -144,7 +144,7 @@ jobs:
 
   build_completed:
     docker:
-      - image: cimg/base
+      - image: cimg/base:stable
     steps:
       - slack/notify:
           event: pass
