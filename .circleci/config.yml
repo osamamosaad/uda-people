@@ -1,6 +1,9 @@
 version: 2.1
 
-# commands:
+orbs:
+  slack: circleci/slack@4.10.1
+
+commands:
 #   destroy-environment:
 #     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
 #     parameters:
@@ -31,6 +34,13 @@ version: 2.1
 #             #  Add revert code here. You can find this in the Getting Started section.
 #               exit 1
 #             fi
+  slack_notify_failure:
+    steps:
+      - slack/notify:
+          event: fail
+          channel: udapeople-cicd
+          template: basic_fail_1
+
 
 jobs:
   build-frontend:
@@ -49,6 +59,7 @@ jobs:
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-dependencies
+      - slack_notify_failure
 
   build-backend:
     docker:
@@ -66,6 +77,7 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-dependencies
+      - slack_notify_failure
 
   test-frontend:
     docker:
@@ -80,6 +92,7 @@ jobs:
             cd frontend
             npm install
             npm test
+      - slack_notify_failure
 
   test-backend:
     docker:
@@ -94,6 +107,7 @@ jobs:
              cd backend
              npm install
              npm test
+      - slack_notify_failure
 
   scan-frontend:
     docker:
@@ -109,6 +123,7 @@ jobs:
             npm install
             npm audit fix --force --audit-level=critical
             npm audit --audit-level=critical
+      - slack_notify_failure
 
   scan-backend:
     docker:
@@ -125,6 +140,16 @@ jobs:
             npm audit fix --force --audit-level=critical
             npm audit fix --force --audit-level=critical
             npm audit --audit-level=critical
+      - slack_notify_failure
+
+  build_completed:
+    docker:
+      - image: cimg/base
+    steps:
+      - slack/notify:
+          event: pass
+          channel: udapeople-cicd
+          template: basic_success_1
 
 #   deploy-infrastructure:
 #     docker:
@@ -305,6 +330,14 @@ workflows:
           requires: [build-backend]
       - scan-frontend:
           requires: [build-frontend]
+      - build_completed:
+          requires:
+            - build-frontend
+            - build-backend
+            - test-frontend
+            - test-backend
+            - scan-frontend
+            - scan-backend
       # - deploy-infrastructure:
       #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
       #     filters:
