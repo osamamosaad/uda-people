@@ -200,31 +200,30 @@ jobs:
       - destroy-environment:
           WorkFlowId: ${CIRCLE_WORKFLOW_ID:0:7}
       - slack_notify_failure
-      # Here's where you will add some code to rollback on failure      
 
-  # configure-infrastructure:
-  #   docker:
-  #     - image:
-  #   steps:
-  #     - checkout
-  #     - add_ssh_keys:
-  #         fingerprints:
-  #           - a6:21:72:1d:73:e1:8f:45:99:bd:85:55:ee:f3:e8:fb
-  #     # attach workspace
-  #     - attach_workspace:
-  #        at: project/.circleci/ansible/inventory.txt
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           apk add --update ansible
+  configure-infrastructure:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - a6:21:72:1d:73:e1:8f:45:99:bd:85:55:ee:f3:e8:fb
+      - attach_workspace:
+         at: ~/
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update ansible
 
-  #     - run:
-  #         name: Configure server
-  #         command: |
-  #           cd .circleci/ansible
-  #           ansible-playbook -i inventory.txt configure-server.yml
-  #           exit 1
-      # Here's where you will add some code to rollback on failure      
+      - run:
+          name: Configure server
+          command: |
+            cd .circleci/ansible
+            ansible-playbook -i inventory.txt configure-server.yml
+      - destroy-environment:
+          WorkFlowId: ${CIRCLE_WORKFLOW_ID:0:7}
+      - slack_notify_failure
 
 #   run-migrations:
 #     docker:
@@ -365,8 +364,8 @@ workflows:
           filters:
             branches:
               only: [master]
-      # - configure-infrastructure:
-      #     requires: [deploy-infrastructure]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
       # - run-migrations:
       #     requires: [configure-infrastructure]
       # - deploy-frontend:
