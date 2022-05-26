@@ -15,14 +15,16 @@ commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
-      StackName:
+      WorkFlowId:
         type: string
     steps:
       - run:
           name: Destroy environments
           when: on_fail
           command: |
-            aws cloudformation delete-stack --stack-name <<parameters.StackName>>
+            aws cloudformation delete-stack --stack-name udapeople-backend-<<parameters.WorkFlowId>>
+            aws s3 rm s3://udapeople-<<parameters.WorkFlowId>> --recursive
+            aws cloudformation delete-stack --stack-name udapeople-frontend-<<parameters.WorkFlowId>>
 
 #   revert-migrations:
 #     description: Revert the last migration if successfully run in the current workflow.
@@ -191,35 +193,39 @@ jobs:
               --output text >> .circleci/ansible/inventory.txt
             echo "Public Ip is:"
             cat .circleci/ansible/inventory.txt
+            exit 1
       - persist_to_workspace:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
       - destroy-environment:
-          StackName: "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
-      - destroy-environment:
-          StackName: "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
+          WorkFlowId: ${CIRCLE_WORKFLOW_ID:0:7}
       - slack_notify_failure
       # Here's where you will add some code to rollback on failure      
 
-#   configure-infrastructure:
-#     docker:
-#       # Docker image here that supports Ansible
-#     steps:
-#       # Checkout code from git
-#       # Add ssh keys with fingerprint
-#       # attach workspace
-#       - run:
-#           name: Install dependencies
-#           command: |
-#             # Your code here
-#             exit 1
-#       - run:
-#           name: Configure server
-#           command: |
-#             # Your code here
-#             exit 1
-#       # Here's where you will add some code to rollback on failure      
+  # configure-infrastructure:
+  #   docker:
+  #     - image:
+  #   steps:
+  #     - checkout
+  #     - add_ssh_keys:
+  #         fingerprints:
+  #           - a6:21:72:1d:73:e1:8f:45:99:bd:85:55:ee:f3:e8:fb
+  #     # attach workspace
+  #     - attach_workspace:
+  #        at: project/.circleci/ansible/inventory.txt
+  #     - run:
+  #         name: Install dependencies
+  #         command: |
+  #           apk add --update ansible
+
+  #     - run:
+  #         name: Configure server
+  #         command: |
+  #           cd .circleci/ansible
+  #           ansible-playbook -i inventory.txt configure-server.yml
+  #           exit 1
+      # Here's where you will add some code to rollback on failure      
 
 #   run-migrations:
 #     docker:
