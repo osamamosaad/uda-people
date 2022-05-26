@@ -17,7 +17,7 @@ Resources:
         ErrorDocument: 404.html
   
   WebsiteBucketPolicy:
-    Type: AWS::S3::BucketPolicyd
+    Type: AWS::S3::BucketPolicy
     Properties:
       Bucket: !Ref 'WebsiteBucket'
       PolicyDocument:
