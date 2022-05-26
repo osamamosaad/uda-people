@@ -193,7 +193,6 @@ jobs:
               --output text >> .circleci/ansible/inventory.txt
             echo "Public Ip is:"
             cat .circleci/ansible/inventory.txt
-            exit 1
       - persist_to_workspace:
           root: ~/
           paths:
