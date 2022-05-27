@@ -15,21 +15,21 @@ commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
-      WorkFlowId:
+      WorkflowId:
         type: string
     steps:
       - run:
           name: Destroy environments
           when: on_fail
           command: |
-            aws cloudformation delete-stack --stack-name udapeople-backend-<<parameters.WorkFlowId>>
-            aws s3 rm s3://udapeople-<<parameters.WorkFlowId>> --recursive
-            aws cloudformation delete-stack --stack-name udapeople-frontend-<<parameters.WorkFlowId>>
+            aws cloudformation delete-stack --stack-name udapeople-backend-<<parameters.WorkflowId>>
+            aws s3 rm s3://udapeople-<<parameters.WorkflowId>> --recursive
+            aws cloudformation delete-stack --stack-name udapeople-frontend-<<parameters.WorkflowId>>
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
     parameters:
-      WorkFlowId:
+      WorkflowId:
         type: string
     steps:
       - run:
@@ -197,7 +197,7 @@ jobs:
           paths:
             - project/.circleci/ansible/inventory.txt
       - destroy-environment:
-          WorkFlowId: ${CIRCLE_WORKFLOW_ID:0:7}
+          WorkflowId: ${CIRCLE_WORKFLOW_ID:0:7}
       - slack_notify_failure
 
   configure-infrastructure:
@@ -220,7 +220,7 @@ jobs:
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml
       - destroy-environment:
-          WorkFlowId: ${CIRCLE_WORKFLOW_ID:0:7}
+          WorkflowId: ${CIRCLE_WORKFLOW_ID:0:7}
       - slack_notify_failure
 
   run-migrations:
