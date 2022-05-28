@@ -277,19 +277,22 @@ jobs:
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --output text)
             export API_URL="http://${BACKEND_IP}:3030"
-            echo "Backend URL is:"
-            echo "${API_URL}"
+            echo "API_URL = ${API_URL}"
+            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
+            cat frontend/.env
       - run:
           name: Deploy frontend objects
           command: |
-            exit 1
+            cd frontend
+            npm install
+            npm run build
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       - destroy-environment:
           WorkflowId: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
           WorkflowId: ${CIRCLE_WORKFLOW_ID:0:7}
       - slack_notify_failure
-      # Here's where you will add some code to rollback on failure      
-                    
+
 #   deploy-backend:
 #     docker:
 #       # Docker image here that supports Ansible
