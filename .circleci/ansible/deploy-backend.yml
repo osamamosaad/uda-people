@@ -3,11 +3,21 @@
 - name: "configuration play."
   hosts: web
   user: ubuntu
+  become: true
   gather_facts: false
   vars:
     - ansible_python_interpreter: /usr/bin/python3
     - ansible_host_key_checking: false
     - ansible_stdout_callback: yaml
+
+  pre_tasks:
+    - name: wite for 600 secound
+      wait_for_connection:
+        timeout: 600
+
+    - name: "install python for Ansible."
+      shell: which python3 || (apt -y update && apt install -y python3)
+      changed_when: false
 
   environment:
     NODE_ENV: production
@@ -21,15 +31,6 @@
     TYPEORM_USERNAME: "{{ lookup('env', 'TYPEORM_USERNAME') }}"
     TYPEORM_PASSWORD: "{{ lookup('env', 'TYPEORM_PASSWORD') }}"
     TYPEORM_DATABASE: "{{ lookup('env', 'TYPEORM_DATABASE') }}"
-
-  pre_tasks:
-    - name: wite for 600 secound
-      wait_for_connection:
-        timeout: 600
-
-    - name: "install python for Ansible."
-      shell: which python3 || (apt -y update && apt install -y python3)
-      changed_when: false
 
   roles:
     - deploy
