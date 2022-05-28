@@ -325,6 +325,10 @@ jobs:
       - run:
           name: Deploy backend
           command: |
+            echo "print env"
+            echo ${TYPEORM_MIGRATIONS_DIR}
+            echo ${TYPEORM_ENTITIES}
+            echo ${TYPEORM_MIGRATIONS}
             cd .circleci/ansible
             ansible-playbook -i inventory.txt deploy-backend.yml
       - destroy-environment:
