@@ -64,7 +64,7 @@ jobs:
     steps:
       - checkout
       - install-ansible
-      - runt: ansible-playbook -v
+      - run: ansible-playbook -v
       - restore_cache:
           keys: [frontend-dependencies]
       - run:
