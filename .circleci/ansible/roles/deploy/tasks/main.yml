@@ -23,5 +23,5 @@
 
 - name: Debug server output
   debug:
-    msg: "{{ server_output.stdout_lins }}"
+    msg: "{{ server_output.stdout_lines }}"
 
