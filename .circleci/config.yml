@@ -17,7 +17,7 @@ commands:
       - run:
           name: install Ansible
           command: |
-             sudo apt-get install ansible -y
+            pip install ansible
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
