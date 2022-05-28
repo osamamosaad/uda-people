@@ -31,8 +31,8 @@ commands:
           when: on_fail
           command: |
             aws cloudformation delete-stack --stack-name udapeople-backend-<<parameters.WorkflowId>>
-            aws s3 rm s3://udapeople-<<parameters.WorkflowId>> --recursive
-            aws cloudformation delete-stack --stack-name udapeople-frontend-<<parameters.WorkflowId>>
+            # aws s3 rm s3://udapeople-<<parameters.WorkflowId>> --recursive
+            # aws cloudformation delete-stack --stack-name udapeople-frontend-<<parameters.WorkflowId>>
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -182,14 +182,14 @@ jobs:
                 --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
                 --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
                 --tags project=udapeople
-      - run:
-          name: Ensure front-end infrastructure exist
-          command: |
-            aws cloudformation deploy \
-              --template-file .circleci/files/frontend.yml \
-              --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" \
-              --tags project=udapeople
+      # - run:
+      #     name: Ensure front-end infrastructure exist
+      #     command: |
+      #       aws cloudformation deploy \
+      #         --template-file .circleci/files/frontend.yml \
+      #         --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
+      #         --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" \
+      #         --tags project=udapeople
 
       - run:
           name: Add back-end ip to ansible inventory
@@ -398,26 +398,27 @@ jobs:
 workflows:
   default:
     jobs:
-      - build-frontend
+      # - build-frontend
       - build-backend
-      - test-frontend:
-          requires: [build-frontend]
+      # - test-frontend:
+      #     requires: [build-frontend]
       - test-backend:
           requires: [build-backend]
       - scan-backend:
           requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]
-      - build_completed:
-          requires:
-            - build-frontend
-            - build-backend
-            - test-frontend
-            - test-backend
-            - scan-frontend
-            - scan-backend
+      # - scan-frontend:
+      #     requires: [build-frontend]
+      # - build_completed:
+      #     requires:
+      #       - build-frontend
+      #       - build-backend
+      #       - test-frontend
+      #       - test-backend
+      #       - scan-frontend
+      #       - scan-backend
       - deploy-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          # requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          requires: [test-backend, scan-backend]
           filters:
             branches:
               only: [master]
@@ -425,8 +426,8 @@ workflows:
           requires: [deploy-infrastructure]
       - run-migrations:
           requires: [configure-infrastructure]
-      - deploy-frontend:
-          requires: [run-migrations]
+      # - deploy-frontend:
+      #     requires: [run-migrations]
       - deploy-backend:
           requires: [run-migrations]
       # - smoke-test:
