@@ -15,7 +15,7 @@ commands:
   install-node:
     steps:
       - run:
-          name: install Ansible
+          name: install Node
           command: |
              curl -fsSL https://deb.nodesource.com/setup_13.x | sudo -E bash -
              sudo apt-get install -y nodejs
@@ -60,16 +60,6 @@ commands:
 
 
 jobs:
-  test-job:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - install-node
-      - run: 
-          name: test npm
-          command: |
-            npm -v
-            exit 1
   build-frontend:
     docker:
       - image: cimg/node:13.8.0
@@ -270,24 +260,34 @@ jobs:
 
   deploy-frontend:
     docker:
-      - image: cimg/node:13.8.0
+      - image: cimg/python:3.10.4
     steps:
       - checkout
       - install-aws-cli
+      - install-node
       - run:
-          name: Install dependencies
+          name: Install ansible
           command: |
-            # your code here
+            pip install ansible
       - run:
           name: Get backend url
           command: |
-            # your code here
+            BACKEND_IP=$(aws ec2 describe-instances \
+              --filters "Name=tag:Name, Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --output text)
             export API_URL="http://${BACKEND_IP}:3030"
+            echo "Backend URL is:"
             echo "${API_URL}"
       - run:
           name: Deploy frontend objects
           command: |
-            # your code here
+            exit 1
+      - destroy-environment:
+          WorkflowId: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations:
+          WorkflowId: ${CIRCLE_WORKFLOW_ID:0:7}
+      - slack_notify_failure
       # Here's where you will add some code to rollback on failure      
                     
 #   deploy-backend:
@@ -368,7 +368,6 @@ jobs:
 workflows:
   default:
     jobs:
-      - test-job
       - build-frontend
       - build-backend
       - test-frontend:
