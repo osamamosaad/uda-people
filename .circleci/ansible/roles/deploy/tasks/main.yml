@@ -1,0 +1,27 @@
+---
+- name: Create app directory
+  file:
+    path: ~/app
+    state: directory
+
+- name: Upload Backend Artifact
+  unarchive:
+    src: artifact.tar.gz
+    dest: ~/app
+
+- name: Install Dependencies
+  shell: |
+    cd app
+    npm install
+
+- name: Start Server
+  shell: |
+    cd ~/app/dist
+    pm2 stop default
+    pm2 start main.js
+  register: server_output
+
+- name: Debug server output
+  debug:
+    msg: "{{ server_output.stdout_lins }}"
+
