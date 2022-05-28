@@ -260,15 +260,10 @@ jobs:
 
   deploy-frontend:
     docker:
-      - image: cimg/python:3.10.4
+      - image: cimg/node:13.8.0
     steps:
       - checkout
       - install-aws-cli
-      - install-node
-      - run:
-          name: Install ansible
-          command: |
-            pip install ansible
       - run:
           name: Get backend url
           command: |
