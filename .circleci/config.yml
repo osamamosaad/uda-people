@@ -12,12 +12,14 @@ commands:
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
             sudo ./aws/install
-  install-ansible:
+  install-node:
     steps:
       - run:
           name: install Ansible
           command: |
-             apt-get install ansible -y
+             curl -fsSL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+             sudo apt-get install -y nodejs
+             npm --version
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
@@ -58,13 +60,21 @@ commands:
 
 
 jobs:
+  test-job:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - install-node
+      - run: 
+          name: test npm
+          command: |
+            npm -v
+            exit 1
   build-frontend:
     docker:
       - image: cimg/node:13.8.0
     steps:
       - checkout
-      - install-ansible
-      - runt: ansible-playbook -v
       - restore_cache:
           keys: [frontend-dependencies]
       - run:
@@ -264,7 +274,6 @@ jobs:
     steps:
       - checkout
       - install-aws-cli
-      - install-ansible
       - run:
           name: Install dependencies
           command: |
@@ -359,6 +368,7 @@ jobs:
 workflows:
   default:
     jobs:
+      - test-job
       - build-frontend
       - build-backend
       - test-frontend:
