@@ -290,15 +290,14 @@ jobs:
 
   deploy-backend:
     docker:
-      - image: cimg/python:3.10.4
+      - image: cimg/python:3.10.4-node
     steps:
       - checkout
       - install-aws-cli
-      - install-node
       - run:
           name: Install dependencies
           command: |
-            pip install ansible
+            apk add --update ansible
       - add_ssh_keys:
           fingerprints:
             - a6:21:72:1d:73:e1:8f:45:99:bd:85:55:ee:f3:e8:fb
