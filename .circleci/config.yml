@@ -348,29 +348,41 @@ jobs:
           WorkflowId: ${CIRCLE_WORKFLOW_ID:0:7}
       - slack_notify_failure
 
-#   smoke-test:
-#     docker:
-#       # Lightweight Docker image 
-#     steps:
-#       # Checkout code from git
-#       - run:
-#           name: Install dependencies
-#           command: |
-#             # your code here
-#       - run:
-#           name: Get backend url
-#           command: |
-#             # your code here
-#       - run:
-#           name: Backend smoke test.
-#           command: |
-#             # your code here
-#       - run:
-#           name: Frontend smoke test.
-#           command: |
-#             # your code here
-#       # Here's where you will add some code to rollback on failure  
-
+  smoke-test:
+    docker:
+      - image: cimg/python:3.10.4-node
+    steps:
+      - install-aws-cli
+      - run:
+          name: Get backend url
+          command: |
+            BACKEND_IP=$(aws ec2 describe-instances \
+              --filters "Name=tag:Name, Values=backend-b945244" \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --output text)
+            echo "Backend IP:"
+            echo $BACKEND_IP
+      - run:
+          name: Backend smoke test.
+          command: |
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}"
+            if curl "${API_URL}/api/status" | grep "ok"
+            then
+                return 0
+            else
+                return 1
+            fi
+      # - run:
+      #     name: Frontend smoke test.
+      #     command: |
+      #       # your code here
+      # Here's where you will add some code to rollback on failure  
+      - destroy-environment:
+          WorkflowId: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations:
+          WorkflowId: ${CIRCLE_WORKFLOW_ID:0:7}
+      - slack_notify_failure
 #   cloudfront-update:
 #     docker:
 #       # Docker image here that supports AWS CLI
@@ -441,8 +453,9 @@ workflows:
       #     requires: [run-migrations]
       - deploy-backend:
           requires: [run-migrations]
-      # - smoke-test:
-      #     requires: [deploy-backend, deploy-frontend]
+      - smoke-test:
+          requires: [deploy-backend]
+          # requires: [deploy-backend, deploy-frontend]
       # - cloudfront-update:
       #     requires: [smoke-test]
       # - cleanup:
