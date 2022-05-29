@@ -321,16 +321,12 @@ jobs:
             cd backend
             npm i
             npm run build
-            tar -czvf artifact.tar.gz dist/* package*
-            mv artifact.tar.gz ../.circleci/ansible/roles/deploy/files
+            tar -C backend -czvf artifact.tar.gz .
+            mv artifact.tar.gz .circleci/ansible/roles/deploy/files
 
       - run:
           name: Deploy backend
           command: |
-            echo "print env"
-            echo ${TYPEORM_MIGRATIONS_DIR}
-            echo ${TYPEORM_ENTITIES}
-            echo ${TYPEORM_MIGRATIONS}
             cd .circleci/ansible
             ansible-playbook -i inventory.txt deploy-backend.yml
       - destroy-environment:
