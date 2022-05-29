@@ -387,6 +387,7 @@ jobs:
       - revert-migrations:
           WorkflowId: ${CIRCLE_WORKFLOW_ID:0:7}
       - slack_notify_failure
+
   cloudfront-update:
     docker:
       - image: amazon/aws-cli
@@ -430,7 +431,7 @@ jobs:
           name: Get old stack workflow id
           command: |
             # retrieve old workflow id
-            export OldWorkflowID=$(curl https://kvdb.io/${KVDB_BUCKET}//OldWorkflowID-${CIRCLE_WORKFLOW_ID:0:7})
+            export OldWorkflowID=$(curl https://kvdb.io/${KVDB_BUCKET}/OldWorkflowID-${CIRCLE_WORKFLOW_ID:0:7})
             echo OldWorkflowID: "${OldWorkflowID}"
             echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
 
@@ -442,11 +443,10 @@ jobs:
             if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
             then
               # Destroy old environment
-              aws cloudformation delete-stack --stack-name udapeople-backend-<<parameters.WorkflowId>>
-              aws s3 rm s3://udapeople-<<parameters.WorkflowId>> --recursive
-              aws cloudformation delete-stack --stack-name udapeople-frontend-<<parameters.WorkflowId>>
+              aws cloudformation delete-stack --stack-name udapeople-backend-${OldWorkflowID}
+              aws s3 rm s3://udapeople-${OldWorkflowID} --recursive
+              aws cloudformation delete-stack --stack-name udapeople-frontend-${OldWorkflowID}
             fi
-
 
 workflows:
   default:
