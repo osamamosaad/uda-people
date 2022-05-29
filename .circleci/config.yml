@@ -330,6 +330,7 @@ jobs:
           name: Prepare artifact
           command: |
             cd backend
+            cat .env
             npm i
             npm run build
             cd ..
