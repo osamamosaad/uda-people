@@ -421,7 +421,7 @@ jobs:
           WorkflowId: ${CIRCLE_WORKFLOW_ID:0:7}
       - slack_notify_failure
 
-cleanup:
+  cleanup:
     docker:
       - image: amazon/aws-cli
     steps:
