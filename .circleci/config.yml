@@ -382,10 +382,10 @@ jobs:
       #       else
       #         return 1
       #       fi
-      # - destroy-environment:
-      #     WorkflowId: ${CIRCLE_WORKFLOW_ID:0:7}
-      # - revert-migrations:
-      #     WorkflowId: ${CIRCLE_WORKFLOW_ID:0:7}
+      - destroy-environment:
+          WorkflowId: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations:
+          WorkflowId: ${CIRCLE_WORKFLOW_ID:0:7}
       - slack_notify_failure
 #   cloudfront-update:
 #     docker:
