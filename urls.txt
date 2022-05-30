@@ -1,0 +1,2 @@
+CloudFront: http://d2duaso6ehdk0u.cloudfront.net/#/employees
+S3 URL: http://udapeople-06e721c.s3-website-us-east-1.amazonaws.com

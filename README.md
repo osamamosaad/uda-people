@@ -3,6 +3,10 @@
 Cloud DevOps Nanodegree Graduation project,
 Build CI/CD pipliens for Backend/ Frontend projects that provided from Udacity side.
 
+# important for reviewer
+- [CI/CD Presentation](presentation.pdf)
+- [Important urls](urls.txt)
+- [Screenshouts](./SCREENSHOTS)
 
 ### Built With
 
